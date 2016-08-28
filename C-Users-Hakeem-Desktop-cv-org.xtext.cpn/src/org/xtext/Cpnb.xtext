@@ -1,0 +1,42 @@
+grammar org.xtext.Cpnb with org.eclipse.xtext.common.Terminals
+
+generate cpnb "http://www.xtext.org/Cpnb"
+
+Model:
+	
+	('CPN_id' name = ID
+	(placesDeclaration+=Placedec)+
+	(trasitionsDeclaration +=Transitiondeclation)+
+	(gardsdefintion+= Guarddef)+
+	('initialization' (init+=inialisation)*)?)?;
+	
+			
+Placedec:
+	'Place_id' name=ID '{' colors+=color (','colors+=color)*'}';
+	
+Transitiondeclation:
+	'Transition_id' name=ID 'input' (inputs+=[Placedec])+ ('output' (outputs+=[Placedec])+)?;	
+
+Guarddef:
+	'GuardOf('Tr=([Transitiondeclation])')''=' 'IF' ifs+=Containement ('^' ifs+=Containement )* 'THEN' thens+=Opr ('^' thens+=Opr)*;
+
+Containement:
+	('{'elements+= ( CountedElement)  (','elements+= ( CountedElement) )*'}' op=COP  'State(' state=[Placedec] ')');
+
+Opr:
+	'State(' states+=[Placedec] ')'  ':=' 'State(' states+=[Placedec] ')' op=OP    '{' elements+=CountedElement (','elments+= CountedElement )*'}';
+
+inialisation:
+	'Place' Pl=[Placedec] '<-' '{'elements+= ( CountedElement)  (','elements+= ( CountedElement) )*'}';
+
+color :
+	'(' name=ID ')';
+
+CountedElement:
+	colr = [color|ID] (counted?= ('->')  count = INT)?;
+
+terminal COP:
+	':'|'<:';
+	
+terminal OP:
+	'\\/'|'\\';
